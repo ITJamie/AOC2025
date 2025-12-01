@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import inspect
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -18,6 +19,8 @@ class RunResult:
 
     part1: Any | None = None
     part2: Any | None = None
+    part1_time: float | None = None
+    part2_time: float | None = None
 
 
 class Puzzle:
@@ -130,9 +133,13 @@ class Puzzle:
 
         result = RunResult()
         if part in {"1", "both"}:
+            start = time.perf_counter()
             result.part1 = self.part1()
+            result.part1_time = time.perf_counter() - start
         if part in {"2", "both"}:
+            start = time.perf_counter()
             result.part2 = self.part2()
+            result.part2_time = time.perf_counter() - start
         return result
 
     # --- Output --------------------------------------------------------
@@ -140,9 +147,34 @@ class Puzzle:
         """Pretty-print part outputs."""
 
         if result.part1 is not None:
-            print(f"Part 1: {result.part1}")
+            suffix = (
+                f" ({self._format_duration(result.part1_time)})"
+                if result.part1_time is not None
+                else ""
+            )
+            print(f"Part 1: {result.part1}{suffix}")
         if result.part2 is not None:
-            print(f"Part 2: {result.part2}")
+            suffix = (
+                f" ({self._format_duration(result.part2_time)})"
+                if result.part2_time is not None
+                else ""
+            )
+            print(f"Part 2: {result.part2}{suffix}")
+
+    @staticmethod
+    def _format_duration(seconds: float) -> str:
+        """Format a duration into a compact human-readable string."""
+
+        if seconds >= 1:
+            return f"{seconds:.3f}s"
+        millis = seconds * 1_000
+        if millis >= 1:
+            return f"{millis:.2f}ms"
+        micros = seconds * 1_000_000
+        if micros >= 1:
+            return f"{micros:.0f}µs"
+        nanos = seconds * 1_000_000_000
+        return f"{nanos:.0f}ns"
 
 
 # def batched(iterable: Iterable[Any], size: int) -> Iterable[list[Any]]:
