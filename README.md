@@ -33,3 +33,5 @@ Install dev deps and run pytest:
 python -m pip install -r requirements.txt
 pytest
 ```
+
+CI runs the pytest suite on push/PR via GitHub Actions (`.github/workflows/ci.yml`).
